@@ -4,6 +4,7 @@ import {
   StackItem,
   getTemplate,
   createAsset,
+  createParameter,
 } from '@sjmeverett/cfn-types';
 import { CloudFormation, S3 } from 'aws-sdk';
 import { upperFirst } from './util/upperFirst';
@@ -67,11 +68,16 @@ export class DeploymentManager {
    * @param stack the stack to upload
    */
   async uploadStack(stack: StackItem[]) {
-    const assets = getAssets(stack);
+    const stackWithBucketParam = [
+      ...stack,
+      createParameter('DeploymentBucket'),
+    ];
+
+    const assets = getAssets(stackWithBucketParam);
 
     const template = createAsset(
       `cloudformation-${this.options.changeId}.json`,
-      getTemplate(stack),
+      getTemplate(stackWithBucketParam),
     );
 
     assets.push(template);
@@ -133,8 +139,10 @@ export class DeploymentManager {
     this.progress('Creating changeset', 0);
 
     const { changeId, deploymentBucket, region = 'us-east-1' } = this.options;
+
     const changeSetName =
       this.stackNameWithStage + '-' + changeId.replace(/\./g, '-');
+
     const changeSetType = await this.getChangeSetType();
 
     this.progress('Creating changeset', 0.5);
@@ -146,6 +154,12 @@ export class DeploymentManager {
         ChangeSetName: changeSetName,
         TemplateURL: `https://${deploymentBucket}.s3.${region}.amazonaws.com/cloudformation-${changeId}.json`,
         Capabilities: ['CAPABILITY_IAM'],
+        Parameters: [
+          {
+            ParameterKey: 'DeploymentBucket',
+            ParameterValue: deploymentBucket,
+          },
+        ],
       })
       .promise();
 

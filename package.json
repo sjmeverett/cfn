@@ -28,7 +28,7 @@
     "unzipper": "^0.10.11"
   },
   "dependencies": {
-    "@sjmeverett/cfn-types": "^1.0.1",
+    "@sjmeverett/cfn-types": "^1.1.0",
     "@sjmeverett/get-package-paths": "^1.0.0",
     "aws-sdk": "^2.1125.0",
     "tslib": "^2.4.0"
