@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "es2015",
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "strict": true,
+    "types": ["node"],
+    "esModuleInterop": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "declaration": true,
+    "module": "commonjs"
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}

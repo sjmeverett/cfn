@@ -1,0 +1,36 @@
+{
+  "name": "@sjmeverett/cfn",
+  "version": "0.0.0",
+  "publishConfig": {
+    "public": true
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc && rollup -c && sucrase-node src/scripts/zipCustomResources",
+    "postversion": "git push --follow-tags"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^22.0.0",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^13.2.1",
+    "@types/archiver": "^5.3.1",
+    "@types/mime-types": "^2.1.1",
+    "@types/node": "^14.18.16",
+    "@types/unzipper": "^0.10.5",
+    "archiver": "^5.3.1",
+    "mime-types": "^2.1.35",
+    "node-fetch": "^3.2.4",
+    "prettier": "^2.6.2",
+    "rollup": "^2.70.2",
+    "sucrase": "^3.21.0",
+    "typescript": "^4.6.4",
+    "unzipper": "^0.10.11"
+  },
+  "dependencies": {
+    "@sjmeverett/cfn-types": "^1.0.1",
+    "@sjmeverett/get-package-paths": "^1.0.0",
+    "aws-sdk": "^2.1125.0",
+    "tslib": "^2.4.0"
+  }
+}
