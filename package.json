@@ -2,7 +2,7 @@
   "name": "@sjmeverett/cfn",
   "version": "1.0.0",
   "publishConfig": {
-    "public": true
+    "access": "public"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
