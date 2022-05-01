@@ -15,6 +15,7 @@ export * from './DeploymentManager';
 export * from './util/createFileAsset';
 export * from './util/packageVersion';
 export * from './util/upperFirst';
+export * from './util/zipDirectory';
 export * from './util/zipModule';
 // @endindex
 

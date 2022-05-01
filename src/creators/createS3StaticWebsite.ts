@@ -83,7 +83,7 @@ export type S3StaticWebsiteResources<TDomains extends string> = {
  * @param options additional options
  * @returns the various resources that make up the website
  */
-export function createStaticWebsite<TDomains extends string = 'Domain'>(
+export function createS3StaticWebsite<TDomains extends string = 'Domain'>(
   name: string,
   options: S3StaticWebsiteOptions<TDomains>,
 ): S3StaticWebsiteResources<TDomains> {
