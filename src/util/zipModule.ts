@@ -27,7 +27,7 @@ export function zipModule(
   archive.finalize();
 
   return new Promise((resolve, reject) => {
-    archive.on('done', resolve);
+    outstream.on('close', resolve);
     archive.on('error', reject);
   });
 }

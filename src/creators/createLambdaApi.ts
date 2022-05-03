@@ -43,6 +43,10 @@ export interface CreateLambdaApiOptions extends CreateLambdaWithRoleOptions {
    * The ARN of the HTTPS certificate to use
    */
   CertificateArn: string;
+  /**
+   * Whether or not to enable API Gateway logging.
+   */
+  EnableLogging?: string;
 }
 
 /**
@@ -51,7 +55,16 @@ export interface CreateLambdaApiOptions extends CreateLambdaWithRoleOptions {
  * @param options additional options
  */
 export function createLambdaApi(name: string, options: CreateLambdaApiOptions) {
-  const [lambda, lambdaRole] = createLambdaWithRole(name, options);
+  const {
+    Stage,
+    Description,
+    HostedZoneName,
+    DomainName,
+    CertificateArn,
+    ...lambdaOptions
+  } = options;
+
+  const [lambda, lambdaRole] = createLambdaWithRole(name, lambdaOptions);
 
   const invokeArn = fnSub(
     'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${Arn}/invocations',
@@ -60,15 +73,15 @@ export function createLambdaApi(name: string, options: CreateLambdaApiOptions) {
 
   // create the API Gateway Rest API
   const api = createApiGatewayRestApi(name + 'ApiGateway', {
-    Name: name + upperFirst(options.Stage),
-    Description: options.Description,
+    Name: name + upperFirst(Stage),
+    Description,
   });
 
   // give API Gateway access to the lambda function
   const permission = createApiGatewayLambdaPermission(name + 'Permission', {
     ApiId: getRef(api),
     LambdaArn: getAttribute(lambda, 'Arn'),
-    Stage: options.Stage,
+    Stage,
   });
 
   // proxy all paths (except /, which is below)
@@ -120,28 +133,30 @@ export function createLambdaApi(name: string, options: CreateLambdaApiOptions) {
   const stage = createApiGatewayStage(name + 'Stage', {
     RestApiId: getRef(api),
     DeploymentId: getRef(apiGatewayDeployment),
-    StageName: options.Stage,
-    MethodSettings: [
-      {
-        DataTraceEnabled: true,
-        HttpMethod: '*',
-        LoggingLevel: 'INFO',
-        ResourcePath: '/*',
-        MetricsEnabled: true,
-      },
-    ],
+    StageName: Stage,
+    MethodSettings: options.EnableLogging
+      ? [
+          {
+            DataTraceEnabled: true,
+            HttpMethod: '*',
+            LoggingLevel: 'INFO',
+            ResourcePath: '/*',
+            MetricsEnabled: true,
+          },
+        ]
+      : undefined,
   });
 
   // create the domain name in API Gateway
   const apiGatewayDomain = createApiGatewayDomainName(name + 'Domain', {
-    DomainName: options.DomainName,
-    CertificateArn: options.CertificateArn,
+    DomainName,
+    CertificateArn: CertificateArn,
   });
 
   // create the base path mapping in the API Gateway domain
   const basePathMapping = createApiGatewayBasePathMapping(name + 'BasePath', {
-    DomainName: options.DomainName,
-    Stage: options.Stage,
+    DomainName,
+    Stage: Stage,
     RestApiId: getRef(api),
   });
 
@@ -149,9 +164,9 @@ export function createLambdaApi(name: string, options: CreateLambdaApiOptions) {
 
   // create the domain record in Route53
   const route53Record = createRoute53RecordSet(name + 'Route53Record', {
-    Name: options.DomainName,
+    Name: DomainName,
     Type: 'A',
-    HostedZoneName: options.HostedZoneName,
+    HostedZoneName,
     AliasTarget: {
       DNSName: getAttribute(apiGatewayDomain, 'DistributionDomainName'),
       HostedZoneId: getAttribute(apiGatewayDomain, 'DistributionHostedZoneId'),

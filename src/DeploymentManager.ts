@@ -125,7 +125,7 @@ export class DeploymentManager {
 
     const stack = StackSummaries?.find(
       (x) =>
-        x.StackName === this.options.stackName &&
+        x.StackName === this.stackNameWithStage &&
         !['REVIEW_IN_PROGRESS', 'DELETE_COMPLETE'].includes(x.StackStatus),
     );
 

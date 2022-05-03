@@ -63,7 +63,7 @@ export const s3BucketWithContentsCustomResource = [
   customResourceLambda,
   customResourceLambdaRole,
   createFileAsset(
-    resolve(__dirname, '../dist/s3BucketWithContentsResource.zip'),
+    resolve(__dirname, '../../dist/s3BucketWithContents.zip'),
     customResourceLambdaKey,
   ),
 ];

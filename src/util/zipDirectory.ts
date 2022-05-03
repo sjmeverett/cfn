@@ -15,7 +15,11 @@ export function zipDirectory(src: string, outputPath: string) {
   archive.finalize();
 
   return new Promise((resolve, reject) => {
-    archive.on('done', resolve);
-    archive.on('error', reject);
+    outstream.on('close', () => {
+      resolve(outputPath);
+    });
+    archive.on('error', (err) => {
+      reject(err);
+    });
   });
 }

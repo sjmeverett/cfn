@@ -63,7 +63,7 @@ export const cloudFrontInvalidationCustomResource = [
   customResourceLambda,
   customResourceLambdaRole,
   createFileAsset(
-    resolve(__dirname, '../dist/cloudFrontInvalidation.zip'),
+    resolve(__dirname, '../../dist/cloudFrontInvalidation.zip'),
     customResourceLambdaKey,
   ),
 ];
