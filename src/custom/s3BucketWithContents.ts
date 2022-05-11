@@ -56,7 +56,7 @@ export const handler = async (event: any, context: any) => {
       const zipFile = s3
         .getObject({ Bucket: options.SourceBucket, Key: options.SourceKey })
         .createReadStream()
-        .pipe(unzipper.Parse());
+        .pipe(unzipper.Parse({ forceStream: true }));
 
       for await (const entry of zipFile) {
         console.log(`Unzipping ${entry.type} ${entry.path}`);
