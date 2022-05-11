@@ -52,35 +52,29 @@ export const handler = async (event: any, context: any) => {
           .promise();
       }
 
+      console.log(`File ${options.SourceBucket}/${options.SourceKey}`);
+
       const zipFile = s3
         .getObject({ Bucket: options.SourceBucket, Key: options.SourceKey })
         .createReadStream()
         .pipe(unzipper.Parse());
 
-      zipFile.pipe(
-        createTransformStream(async (entry) => {
-          if (entry.type === 'File') {
-            console.log(`Unzipping file ${entry.path}`);
+      for await (const entry of zipFile) {
+        console.log(`Unzipping ${entry.type} ${entry.path}`);
 
-            try {
-              await s3
-                .upload({
-                  Bucket: bucketName,
-                  Key: entry.path,
-                  Body: entry,
-                  ContentType: lookup(entry.path) || 'application/octet-stream',
-                })
-                .promise();
-            } catch (err: any) {
-              console.error(err.stack);
-            }
-          } else {
-            return entry.autodrain();
-          }
-        }),
-      );
-
-      await zipFile.promise();
+        if (entry.type === 'File') {
+          await s3
+            .upload({
+              Bucket: bucketName,
+              Key: entry.path,
+              Body: entry,
+              ContentType: lookup(entry.path) || 'application/octet-stream',
+            })
+            .promise();
+        } else {
+          await entry.autodrain().promise();
+        }
+      }
 
       if (options.ConfigFiles) {
         for (const key in options.ConfigFiles) {

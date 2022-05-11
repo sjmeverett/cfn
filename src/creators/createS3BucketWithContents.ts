@@ -1,5 +1,6 @@
 import {
   createCloudFormationCustomResource,
+  dependsOn,
   getAttribute,
   Resource,
 } from '@sjmeverett/cfn-types';
@@ -66,7 +67,7 @@ export const s3BucketWithContentsCustomResource = [
     resolve(__dirname, '../../dist/s3BucketWithContents.zip'),
     customResourceLambdaKey,
   ),
-];
+] as const;
 
 /**
  * Creates an S3 bucket with specified contents in a zip, using a custom resource.
@@ -79,8 +80,12 @@ export function createS3BucketWithContents(
   name: string,
   options: CreateS3BucketWithContentsOptions,
 ): S3BucketWithContentsDescription {
-  return createCloudFormationCustomResource(name, {
+  const resource = createCloudFormationCustomResource(name, {
     ...options,
     ServiceToken: getAttribute(customResourceLambda, 'Arn'),
   });
+
+  dependsOn(resource, s3BucketWithContentsCustomResource[0]);
+
+  return resource;
 }
