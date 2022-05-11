@@ -60,14 +60,20 @@ export const handler = async (event: any, context: any) => {
       zipFile.pipe(
         createTransformStream(async (entry) => {
           if (entry.type === 'File') {
-            return s3
-              .upload({
-                Bucket: bucketName,
-                Key: entry.path,
-                Body: entry,
-                ContentType: lookup(entry.path) || 'application/octet-stream',
-              })
-              .promise();
+            console.log(`Unzipping file ${entry.path}`);
+
+            try {
+              await s3
+                .upload({
+                  Bucket: bucketName,
+                  Key: entry.path,
+                  Body: entry,
+                  ContentType: lookup(entry.path) || 'application/octet-stream',
+                })
+                .promise();
+            } catch (err: any) {
+              console.error(err.stack);
+            }
           } else {
             return entry.autodrain();
           }
