@@ -1,6 +1,5 @@
 import * as unzipper from 'unzipper';
 import { S3, AWSError } from 'aws-sdk';
-import { Transform } from 'stream';
 import { lookup } from 'mime-types';
 import fetch from 'node-fetch';
 import { PromiseResult } from 'aws-sdk/lib/request';
@@ -142,22 +141,6 @@ export const handler = async (event: any, context: any) => {
     await putResponse('FAILED', `Error: ${err.message}`, bucketName, event);
   }
 };
-
-function createTransformStream(process: (entry: any) => Promise<void>) {
-  return new Transform({
-    objectMode: true,
-    transform: (entry, _enc, callback) => {
-      process(entry).then(
-        () => {
-          callback();
-        },
-        (err) => {
-          callback(err);
-        },
-      );
-    },
-  });
-}
 
 async function putResponse(
   status: 'SUCCESS' | 'FAILED',
